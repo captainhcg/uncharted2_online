@@ -5,54 +5,72 @@
 </head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="asset/worldmap.js"></script>
-<script>
-var _height=1080, _width=2158, _tiles=106;
-var _map_array=new Array(_height);
-for(var i=0;i<_height;i++){
-	_map_array[i]=new Array(_width);
-}
-
-$(document).ready(function() {
-	initMapArray();
-	drawMap();
-});
-function initMapArray(){
-	for(var i=0;i<1080;i++){
-		var row=worldmap[i]
-		var ptr = 0
-		for(var ele in row){
-			for(var k in row[ele]){
-				var v=row[ele][k];
-				for(var index=0; index<v; index++){
-					_map_array[i][ptr+index]=k;
-				}
-				ptr+=v;
-			}
-		}
-	}
-}
-var tilesImage;
-function drawMap(){
-	tilesImage=document.getElementById("tiles")
-	var c=document.getElementById("myCanvas");
-	var ctx=c.getContext("2d");
-	ctx.drawImage(tilesImage, 0, 0)
-	for(var i=0; i<1080; i++){
-		for(var j=0; j<2158; j++){
-			var imgId = _map_array[i][j]
-			ctx.drawImage(tilesImage,(16*(imgId%10)),(Math.floor(imgId/10)*16), 16, 16, j*8, i*8, 8, 8);
-		}
-	}
-}
-</script>
 <style>
 *{ padding: 0px; margin: 0px }
 html, body{ width: 100%; height: 100%;}
 #tiles{display: none}
+#myCanvas, #myCanvas:active{ cursor: pointer }
+.move_button{ width: 200px; height: 200px; position: absolute;}
 </style>
 <body>
 <img id="tiles" src="asset/tiles.png">
-<canvas id="myCanvas" width="17264px" height="8640px"></canvas>
+<div id="canvas-wrap">
+    <canvas id="myCanvas" width="640px" height="640px"></canvas>
+    <div id="move_nw" class="move_button" onclick="move('nw')" style="cursor:nw-resize; left:0; top:0"></div>
+    <div id="move_n" class="move_button" onclick="move('n')" style="cursor:n-resize; left: 220px; top:0 "></div>
+    <div id="move_ne" class="move_button" onclick="move('ne')" style="cursor:ne-resize; left: 440; top: 0"></div>
+    <div id="move_w" class="move_button" onclick="move('w')" style="cursor:w-resize; left:0; top:220px"></div>
+    <div id="move_e" class="move_button" onclick="move('e')" style="cursor:e-resize; left:440px; top:220px"></div>
+    <div id="move_sw" class="move_button" onclick="move('sw')" style="cursor:sw-resize; left:0; top:440px"></div>
+    <div id="move_s" class="move_button" onclick="move('s')" style="cursor:s-resize; left:220px; top:440px"></div>
+    <div id="move_se" class="move_button" onclick="move('se')" style="cursor:se-resize; left:440px; top:540px"></div>
+</div>
 </body>
-
+<script>
+var _height=1080, _width=2158, _tiles=106;
+var _map_array=new Array(_height);
+var tilesImage=document.getElementById("tiles")
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+var directions = {nw:{x:-1,y:-1},n:{x:0,y:-2},ne:{x:1,y:-1},w:{x:-2,y:0},e:{x:2,y:0},sw:{x:-1,y:1},s:{x:0,y:2},se:{x:1,y:1}};
+for(var i=0;i<_height;i++){
+    _map_array[i]=new Array(_width);
+}
+$(document).ready(function() {
+    initMapArray();
+    setInterval(drawMap, 50)
+});
+function move(dir){
+    dir = directions[dir];
+    xdir = dir['x'];
+    ydir = dir['y'];
+}
+function initMapArray(){
+    for(var i=0;i<1080;i++){
+        var row=worldmap[i]
+        var ptr = 0
+        for(var ele in row){
+            for(var k in row[ele]){
+                var v=row[ele][k];
+                for(var index=0; index<v; index++){
+                    _map_array[i][ptr+index]=k;
+                }
+                ptr+=v;
+            }
+        }
+    }
+}
+var xshift=1000, yshift=500, xdir=0, ydir=0;
+function drawMap(){
+    ctx.drawImage(tilesImage, 0, 0)
+    for(var i=0; i<40; i++){
+        for(var j=0; j<40; j++){
+            var imgId = _map_array[i+yshift+ydir][j+xshift+xdir]
+            ctx.drawImage(tilesImage,(16*(imgId%10)),(Math.floor(imgId/10)*16), 16, 16, j*16, i*16, 16, 16);
+        }
+    }
+    xshift+=xdir;
+    yshift+=ydir;
+}
+</script>
 </html>
