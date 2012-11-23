@@ -5,6 +5,7 @@
 </head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="asset/worldmap.js"></script>
+<script src="asset/pathmap.js"></script>
 <style>
 *{ padding: 0px; margin: 0px }
 html, body{ width: 100%; height: 100%;}
@@ -33,11 +34,12 @@ var _map_array=new Array(_height);
 var _path_array=new Array(_height);
 var boat_dir = 3;
 var timer = 0;
+var direction = ""
 var tilesImage=document.getElementById("tiles")
 var flagshipImage=document.getElementById("flagship")
 var c=document.getElementById("myCanvas");
 var ctx=c.getContext("2d");
-var directions = {nw:{x:-1,y:-1,b:2},n:{x:0,y:-2,b:0},ne:{x:1,y:-1,b:3},w:{x:-2,y:0,b:2},e:{x:2,y:0,b:3},sw:{x:-1,y:1,b:2},s:{x:0,y:2,b:1},se:{x:1,y:1,b:3}};
+var directions = {nw:{x:-1,y:-1,b:2},n:{x:0,y:-1,b:0},ne:{x:1,y:-1,b:3},w:{x:-1,y:0,b:2},e:{x:1,y:0,b:3},sw:{x:-1,y:1,b:2},s:{x:0,y:1,b:1},se:{x:1,y:1,b:3}};
 for(var i=0;i<_height;i++){
     _map_array[i]=new Array(_width);
     _path_array[i]=new Array(_width);
@@ -47,10 +49,7 @@ $(document).ready(function() {
     setInterval(drawMap, 100)
 });
 function move(dir){
-    dir = directions[dir];
-    xdir = dir['x'];
-    ydir = dir['y'];
-    boat_dir = dir['b'];
+    direction = dir;
 }
 function initMapArray(){
     for(var i=0;i<1080;i++){
@@ -65,33 +64,121 @@ function initMapArray(){
                 ptr+=v;
             }
         }
+        row=pathmap[i]
+        ptr = 0
+        for(var ele in row){
+            for(var k in row[ele]){
+                var v=row[ele][k];
+                for(var index=0; index<v; index++){
+                    if(k==1)
+                        _path_array[i][ptr+index]=true;
+                    else
+                        _path_array[i][ptr+index]=false;  
+                }
+                ptr+=v;
+            }
+        }
     }
 }
-var xshift=1000, yshift=500, xdir=0, ydir=0;
+var xshift=124, yshift=362, xdir=0, ydir=0;
 var boat_x=20, boat_y=20;
+function adjustDirection(x, y){
+    console.log(direction)
+    if(direction=="nw"){
+        if(checkPath(x-1, y)==true)
+            return [-1, 0, 2];
+        if(checkPath(x, y-1)==true)
+            return [0, -1, 0];
+    }else if(direction=="n"){
+        if(checkPath(x-1, y-1)==true)
+            return [-1, -1, 2];
+        if(checkPath(x+1, y-1)==true)
+            return [1, -1, 3];
+    }else if(direction=="ne"){
+        if(checkPath(x+1, y)==true)
+            return [1, 0, 3];
+        if(checkPath(x, y-1)==true)
+            return [0, -1, 0];
+    }else if(direction=="w"){
+        if(checkPath(x-1, y-1)==true)
+            return [-1, -1, 0];
+        if(checkPath(x-1, y+1)==true)
+            return [-1, +1, 1];
+    }else if(direction=="e"){
+        if(checkPath(x+1, y-1)==true)
+            return [1, -1, 0];
+        if(checkPath(x+1, y+1)==true)
+            return [1, 1, 1];
+    }else if(direction=="sw"){
+        if(checkPath(x-1, y)==true)
+            return [-1, 0, 2];
+        if(checkPath(x, y+1)==true)
+            return [0, 1, 1];
+    }else if(direction=="s"){
+        if(checkPath(x+1, y+1)==true)
+            return [1, 1, 3];
+        if(checkPath(x-1, y+1)==true)
+            return [-1, 1, 2];
+    }else if(direction=="se"){
+        if(checkPath(x+1, y)==true)
+            return [1, 0, 3];
+        if(checkPath(x, y+1)==true)
+            return [0, 1, 1];
+    }
+    return false
+// {nw:{x:-1,y:-1,b:2},n:{x:0,y:-1,b:0},ne:{x:1,y:-1,b:3},w:{x:-1,y:0,b:2},e:{x:1,y:0,b:3},sw:{x:-1,y:1,b:2},s:{x:0,y:1,b:1},se:{x:1,y:1,b:3}};
+}
+
+function checkPath(x, y){
+    return _path_array[y][x]==1
+        && _path_array[y][x+1]==1
+        && _path_array[y+1][x]==1
+        && _path_array[y+1][x+1]==1
+}
 function drawMap(){
     timer++;
-    
+
+    if(direction!=""){
+        dir_info = directions[direction];
+        xdir = dir_info['x'];
+        ydir = dir_info['y'];
+        boat_dir = dir_info['b'];
+    }
     // check if this is a valid move
-    if(_map_array[boat_y+yshift+ydir][boat_x+xshift+xdir]==5
-        && _map_array[boat_y+yshift+ydir][boat_x+xshift+xdir+1]==5
-        && _map_array[boat_y+yshift+ydir+1][boat_x+xshift+xdir]==5
-        && _map_array[boat_y+yshift+ydir+1][boat_x+xshift+xdir+1]==5){
+    if(checkPath(boat_x+xshift+xdir, boat_y+yshift+ydir)==true){
+    }
+    else if(adjustDirection(boat_x+xshift, boat_y+yshift)!=false){
+        var res = adjustDirection(boat_x+xshift, boat_y+yshift);
+        xdir = res[0];
+        ydir = res[1]
+        boat_dir = res[2]
+        console.log(2);
     }
     else{
         drawBoat();
+        console.log(3)
         return;
     }
+
     for(var i=0; i<42; i++){
         for(var j=0; j<42; j++){
             var imgId = _map_array[i+yshift+ydir][j+xshift+xdir]
             ctx.drawImage(tilesImage,(16*(imgId%10)),(Math.floor(imgId/10)*16), 16, 16, j*16, i*16, 16, 16);
         }
     }
-    xshift+=xdir;
-    yshift+=ydir;
     drawBoat();
-}
+
+    if(xdir!=0 && ydir!=0){
+        if(timer%2==0){
+            xshift+=xdir;
+            yshift+=ydir; 
+        }
+    }
+    else{
+        xshift+=xdir;
+        yshift+=ydir;       
+    }
+}    
 
 function drawBoat(){
     var sx = 32*(timer%2); // shirt x
