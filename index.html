@@ -46,7 +46,7 @@ for(var i=0;i<_height;i++){
 }
 $(document).ready(function() {
     initMapArray();
-    setInterval(drawMap, 100)
+    setInterval(drawMap, 50)
 });
 function move(dir){
     direction = dir;
@@ -80,8 +80,8 @@ function initMapArray(){
         }
     }
 }
-var xshift=124, yshift=362, xdir=0, ydir=0;
-var boat_x=20, boat_y=20;
+var xshift=123, yshift=364, xdir=0, ydir=0;
+var boat_x=16, boat_y=16;
 function adjustDirection(x, y){
     console.log(direction)
     if(direction=="nw"){
@@ -160,8 +160,8 @@ function drawMap(){
         return;
     }
 
-    for(var i=0; i<42; i++){
-        for(var j=0; j<42; j++){
+    for(var i=0; i<34; i++){
+        for(var j=0; j<34; j++){
             var imgId = _map_array[i+yshift+ydir][j+xshift+xdir]
             ctx.drawImage(tilesImage,(16*(imgId%10)),(Math.floor(imgId/10)*16), 16, 16, j*16, i*16, 16, 16);
         }
