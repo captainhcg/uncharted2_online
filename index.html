@@ -8,17 +8,18 @@
 <style>
 *{ padding: 0px; margin: 0px }
 html, body{ width: 100%; height: 100%;}
-#tiles{display: none}
+#tiles, #flagship{display: none}
 #myCanvas, #myCanvas:active{ cursor: pointer }
 .move_button{ width: 200px; height: 200px; position: absolute;}
 </style>
 <body>
 <img id="tiles" src="asset/tiles.png">
+<img id="flagship" src="asset/flagship.png">
 <div id="canvas-wrap">
-    <canvas id="myCanvas" width="640px" height="640px"></canvas>
+    <canvas id="myCanvas" width="672px" height="672px"></canvas>
     <div id="move_nw" class="move_button" onclick="move('nw')" style="cursor:nw-resize; left:0; top:0"></div>
     <div id="move_n" class="move_button" onclick="move('n')" style="cursor:n-resize; left: 220px; top:0 "></div>
-    <div id="move_ne" class="move_button" onclick="move('ne')" style="cursor:ne-resize; left: 440; top: 0"></div>
+    <div id="move_ne" class="move_button" onclick="move('ne')" style="cursor:ne-resize; left: 440px; top: 0"></div>
     <div id="move_w" class="move_button" onclick="move('w')" style="cursor:w-resize; left:0; top:220px"></div>
     <div id="move_e" class="move_button" onclick="move('e')" style="cursor:e-resize; left:440px; top:220px"></div>
     <div id="move_sw" class="move_button" onclick="move('sw')" style="cursor:sw-resize; left:0; top:440px"></div>
@@ -29,21 +30,27 @@ html, body{ width: 100%; height: 100%;}
 <script>
 var _height=1080, _width=2158, _tiles=106;
 var _map_array=new Array(_height);
+var _path_array=new Array(_height);
+var boat_dir = 3;
+var timer = 0;
 var tilesImage=document.getElementById("tiles")
+var flagshipImage=document.getElementById("flagship")
 var c=document.getElementById("myCanvas");
 var ctx=c.getContext("2d");
-var directions = {nw:{x:-1,y:-1},n:{x:0,y:-2},ne:{x:1,y:-1},w:{x:-2,y:0},e:{x:2,y:0},sw:{x:-1,y:1},s:{x:0,y:2},se:{x:1,y:1}};
+var directions = {nw:{x:-1,y:-1,b:2},n:{x:0,y:-2,b:0},ne:{x:1,y:-1,b:3},w:{x:-2,y:0,b:2},e:{x:2,y:0,b:3},sw:{x:-1,y:1,b:2},s:{x:0,y:2,b:1},se:{x:1,y:1,b:3}};
 for(var i=0;i<_height;i++){
     _map_array[i]=new Array(_width);
+    _path_array[i]=new Array(_width);
 }
 $(document).ready(function() {
     initMapArray();
-    setInterval(drawMap, 50)
+    setInterval(drawMap, 100)
 });
 function move(dir){
     dir = directions[dir];
     xdir = dir['x'];
     ydir = dir['y'];
+    boat_dir = dir['b'];
 }
 function initMapArray(){
     for(var i=0;i<1080;i++){
@@ -61,16 +68,35 @@ function initMapArray(){
     }
 }
 var xshift=1000, yshift=500, xdir=0, ydir=0;
+var boat_x=20, boat_y=20;
 function drawMap(){
-    ctx.drawImage(tilesImage, 0, 0)
-    for(var i=0; i<40; i++){
-        for(var j=0; j<40; j++){
+    timer++;
+    
+    // check if this is a valid move
+    if(_map_array[boat_y+yshift+ydir][boat_x+xshift+xdir]==5
+        && _map_array[boat_y+yshift+ydir][boat_x+xshift+xdir+1]==5
+        && _map_array[boat_y+yshift+ydir+1][boat_x+xshift+xdir]==5
+        && _map_array[boat_y+yshift+ydir+1][boat_x+xshift+xdir+1]==5){
+    }
+    else{
+        drawBoat();
+        return;
+    }
+    for(var i=0; i<42; i++){
+        for(var j=0; j<42; j++){
             var imgId = _map_array[i+yshift+ydir][j+xshift+xdir]
             ctx.drawImage(tilesImage,(16*(imgId%10)),(Math.floor(imgId/10)*16), 16, 16, j*16, i*16, 16, 16);
         }
     }
     xshift+=xdir;
     yshift+=ydir;
+    drawBoat();
+}
+
+function drawBoat(){
+    var sx = 32*(timer%2); // shirt x
+    var sy = 32*boat_dir;
+    ctx.drawImage(flagshipImage, sx, sy, 32, 32, 16*boat_x, 16*boat_y ,32, 32);
 }
 </script>
 </html>
