@@ -15,7 +15,7 @@ html, body{ width: 100%; height: 100%;}
 </style>
 <body>
 <img id="tiles" src="asset/tiles.png">
-<img id="flagship" src="asset/flagship.png">
+<img id="flagship" src="asset/flagship.gif">
 <div id="canvas-wrap">
     <canvas id="myCanvas" width="672px" height="672px"></canvas>
     <div id="move_nw" class="move_button" onclick="move('nw')" style="cursor:nw-resize; left:0; top:0"></div>
@@ -152,11 +152,9 @@ function drawMap(){
         xdir = res[0];
         ydir = res[1]
         boat_dir = res[2]
-        console.log(2);
     }
     else{
         drawBoat();
-        console.log(3)
         return;
     }
 
