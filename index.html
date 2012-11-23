@@ -15,7 +15,7 @@ html, body{ width: 100%; height: 100%;}
 </style>
 <body>
 <img id="tiles" src="asset/tiles.png">
-<img id="flagship" src="asset/flagship.png">
+<img id="flagship" src="asset/flagship.gif">
 <div id="canvas-wrap">
     <canvas id="myCanvas" width="672px" height="672px"></canvas>
     <div id="move_nw" class="move_button" onclick="move('nw')" style="cursor:nw-resize; left:0; top:0"></div>
@@ -46,10 +46,12 @@ for(var i=0;i<_height;i++){
 }
 $(document).ready(function() {
     initMapArray();
-    setInterval(drawMap, 75)
+    setInterval(drawMap, 50)
 });
 function move(dir){
     direction = dir;
+    dir_info = directions[direction];
+    boat_dir = dir_info['b'];
 }
 function initMapArray(){
     for(var i=0;i<1080;i++){
@@ -80,10 +82,9 @@ function initMapArray(){
         }
     }
 }
-var xshift=124, yshift=362, xdir=0, ydir=0;
-var boat_x=20, boat_y=20;
+var xshift=123, yshift=364, xdir=0, ydir=0;
+var boat_x=16, boat_y=16;
 function adjustDirection(x, y){
-    console.log(direction)
     if(direction=="nw"){
         if(checkPath(x-1, y)==true)
             return [-1, 0, 2];
@@ -152,16 +153,14 @@ function drawMap(){
         xdir = res[0];
         ydir = res[1]
         boat_dir = res[2]
-        console.log(2);
     }
     else{
         drawBoat();
-        console.log(3)
         return;
     }
 
-    for(var i=0; i<42; i++){
-        for(var j=0; j<42; j++){
+    for(var i=0; i<34; i++){
+        for(var j=0; j<34; j++){
             var imgId = _map_array[i+yshift+ydir][j+xshift+xdir]
             ctx.drawImage(tilesImage,(16*(imgId%10)),(Math.floor(imgId/10)*16), 16, 16, j*16, i*16, 16, 16);
         }
